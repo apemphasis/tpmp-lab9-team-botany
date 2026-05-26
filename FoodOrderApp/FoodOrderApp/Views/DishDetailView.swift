@@ -97,6 +97,7 @@ struct DishDetailView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
+                .accessibilityIdentifier("addToCartButton")
             }
             .navigationTitle("Детали блюда")
             .navigationBarTitleDisplayMode(.inline)
@@ -125,6 +126,7 @@ struct DishDetailView: View {
                     Text("23 см").tag(2)
                 }
                 .pickerStyle(SegmentedPickerStyle())
+                .accessibilityIdentifier("pizzaSizePicker")
             }
 
             OptionSection(title: "Тесто") {
@@ -133,6 +135,7 @@ struct DishDetailView: View {
                     Text("Обычное").tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
+                .accessibilityIdentifier("pizzaPastryPicker")
             }
 
             OptionSection(title: "Вкус") {
@@ -141,6 +144,7 @@ struct DishDetailView: View {
                     Text("😋 Оригинальное").tag(1)
                 }
                 .pickerStyle(SegmentedPickerStyle())
+                .accessibilityIdentifier("pizzaSpicyPicker")
             }
         }
     }
@@ -154,9 +158,13 @@ struct DishDetailView: View {
                 .fontWeight(.semibold)
 
             CheckboxRow(label: "🧀 Сыр", isChecked: $burgerCheese)
+                .accessibilityIdentifier("cheeseCheckbox")
             CheckboxRow(label: "🧅 Лук", isChecked: $burgerOnion)
+                .accessibilityIdentifier("onionCheckbox")
             CheckboxRow(label: "🥒 Огурчик", isChecked: $burgerCucumber)
+                .accessibilityIdentifier("cucumberCheckbox")
             CheckboxRow(label: "🍅 Помидор", isChecked: $burgerTomato)
+                .accessibilityIdentifier("tomatoCheckbox")
         }
     }
 
@@ -170,6 +178,7 @@ struct DishDetailView: View {
                 Text("Маленькая").tag(2)
             }
             .pickerStyle(SegmentedPickerStyle())
+            .accessibilityIdentifier("snackSizePicker")
         }
     }
 
@@ -182,6 +191,7 @@ struct DishDetailView: View {
                 Text("0.5 л").tag(1)
             }
             .pickerStyle(SegmentedPickerStyle())
+            .accessibilityIdentifier("drinkVolumePicker")
         }
     }
 

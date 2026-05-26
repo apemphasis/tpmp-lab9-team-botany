@@ -42,6 +42,7 @@ struct CartView: View {
                                     .padding(.vertical, 40)
                                     Spacer()
                                 }
+                                .accessibilityIdentifier("emptyCartView")
                             } else {
                                 ForEach($cartViewModel.order.items) { $item in
                                     CartItemRow(item: $item) {
@@ -49,6 +50,7 @@ struct CartView: View {
                                         cartViewModel.order.removeItem(id: item.id)
                                     }
                                     .padding(.horizontal, 16)
+                                    .accessibilityIdentifier("cartItem_\(item.dish.name)")
                                 }
                             }
                         }
@@ -84,6 +86,7 @@ struct CartView: View {
                             }
                             .pickerStyle(SegmentedPickerStyle())
                             .padding(.horizontal, 20)
+                            .accessibilityIdentifier("paymentPicker")
                         }
 
                         Divider().padding(.horizontal, 20)
@@ -124,6 +127,7 @@ struct CartView: View {
                                 .cornerRadius(14)
                             }
                             .padding(.horizontal, 20)
+                            .accessibilityIdentifier("selectOnMapButton")
                         }
 
                         Divider().padding(.horizontal, 20)
@@ -192,6 +196,7 @@ struct CartView: View {
                 .disabled(cartViewModel.order.items.isEmpty)
                 .padding(.horizontal, 20)
                 .padding(.bottom, 20)
+                .accessibilityIdentifier("placeOrderButton")
             }
             .navigationTitle("Корзина")
             .navigationBarTitleDisplayMode(.inline)

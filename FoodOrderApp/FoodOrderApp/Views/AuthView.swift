@@ -45,6 +45,7 @@ struct AuthView: View {
                             authViewModel.errorMessage = ""
                             login = ""; password = ""; address = ""
                         }
+                        .accessibilityIdentifier("authSegmentedControl")
 
                         // Fields
                         VStack(spacing: 16) {
@@ -52,14 +53,16 @@ struct AuthView: View {
                                 title: "Логин",
                                 placeholder: "Введите логин",
                                 text: $login,
-                                icon: "person.fill"
+                                icon: "person.fill",
+                                accessibilityId: "loginTextField"
                             )
 
                             AuthSecureField(
                                 title: "Пароль",
                                 placeholder: "Введите пароль",
                                 text: $password,
-                                showPassword: $showPassword
+                                showPassword: $showPassword,
+                                accessibilityId: "passwordTextField"
                             )
 
                             if selectedSegment == 1 {
@@ -67,7 +70,8 @@ struct AuthView: View {
                                     title: "Адрес доставки",
                                     placeholder: "ул. Примерная, д. 1",
                                     text: $address,
-                                    icon: "location.fill"
+                                    icon: "location.fill",
+                                    accessibilityId: "addressTextField"
                                 )
                                 .transition(.asymmetric(
                                     insertion: .move(edge: .top).combined(with: .opacity),
@@ -109,6 +113,7 @@ struct AuthView: View {
                                 .cornerRadius(14)
                                 .shadow(color: .orange.opacity(0.4), radius: 8, x: 0, y: 4)
                         }
+                        .accessibilityIdentifier("authButton")
                     }
                     .padding(24)
                     .background(Color.white)
@@ -141,6 +146,7 @@ struct AuthTextField: View {
     let placeholder: String
     @Binding var text: String
     let icon: String
+    var accessibilityId: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -155,6 +161,7 @@ struct AuthTextField: View {
                 TextField(placeholder, text: $text)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
+                    .accessibilityIdentifier(accessibilityId)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
@@ -169,6 +176,7 @@ struct AuthSecureField: View {
     let placeholder: String
     @Binding var text: String
     @Binding var showPassword: Bool
+    var accessibilityId: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -184,8 +192,10 @@ struct AuthSecureField: View {
                     TextField(placeholder, text: $text)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
+                        .accessibilityIdentifier(accessibilityId)
                 } else {
                     SecureField(placeholder, text: $text)
+                        .accessibilityIdentifier(accessibilityId)
                 }
                 Button(action: { showPassword.toggle() }) {
                     Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")

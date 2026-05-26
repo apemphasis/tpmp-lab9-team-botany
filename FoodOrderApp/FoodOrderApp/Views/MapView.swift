@@ -80,6 +80,7 @@ struct MapView: View {
                             .background(Color.blue)
                             .cornerRadius(14)
                         }
+                        .accessibilityIdentifier("nearestButton")
 
                         // Confirm button
                         Button(action: confirmSelection) {
@@ -95,6 +96,7 @@ struct MapView: View {
                             .cornerRadius(14)
                         }
                         .disabled(selectedRestaurant == nil)
+                        .accessibilityIdentifier("confirmMapButton")
                     }
                 }
                 .padding(16)
@@ -117,6 +119,7 @@ struct MapView: View {
                         }
                         .foregroundColor(.secondary)
                     }
+                    .accessibilityIdentifier("cancelMapButton")
                 }
             }
             .onAppear {

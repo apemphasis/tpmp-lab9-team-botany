@@ -29,6 +29,7 @@ struct MenuView: View {
                                     .background(Color(.systemGray6))
                                     .clipShape(Circle())
                             }
+                            .accessibilityIdentifier("logoutButton")
                         }
                         .padding(.horizontal, 20)
                         .padding(.top, 16)
@@ -97,6 +98,7 @@ struct CategorySection: View {
                         .onTapGesture {
                             onSelectDish(dish)
                         }
+                        .accessibilityIdentifier("dish_\(dish.name)")
                 }
             }
             .padding(.horizontal, 16)
@@ -128,6 +130,7 @@ struct DishCard: View {
                                     .frame(height: 80)
                                     .shadow(radius: 4)
             }
+            .accessibilityIdentifier("dishCard_\(dish.name)")
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(dish.name)
@@ -193,5 +196,6 @@ struct CartButton: View {
             .cornerRadius(18)
             .shadow(color: .orange.opacity(0.5), radius: 12, x: 0, y: 6)
         }
+        .accessibilityIdentifier("cartButton")
     }
 }
