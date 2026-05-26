@@ -16,8 +16,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode_16.2.app
+      - name: Select Xcode 15
+        run: sudo xcode-select -switch /Applications/Xcode_15.4.app
 
       - name: Show Xcode version
         run: xcodebuild -version
@@ -31,7 +31,7 @@ jobs:
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
-            -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16' \
+            -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' \
             -only-testing:FoodOrderAppTests \
             2>&1 | tee unit_test_log.txt
           exit ${PIPESTATUS[0]}
@@ -42,7 +42,7 @@ jobs:
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
-            -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16' \
+            -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' \
             -only-testing:FoodOrderAppUITests \
             2>&1 | tee ui_test_log.txt
           exit ${PIPESTATUS[0]}
