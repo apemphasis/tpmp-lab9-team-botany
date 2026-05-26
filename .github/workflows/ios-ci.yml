@@ -2,7 +2,7 @@ name: iOS CI
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main ]
 
@@ -16,16 +16,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode 15
-        run: |
-          ls /Applications | grep Xcode
-          sudo xcode-select -switch /Applications/Xcode_15.0.1.app
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode_15.0.1.app
 
       - name: Show Xcode version
         run: xcodebuild -version
-
-      - name: List available simulators
-        run: xcrun simctl list devices
 
       - name: Run Unit Tests
         run: |
@@ -35,6 +30,9 @@ jobs:
             -scheme FoodOrderApp \
             -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' \
             -only-testing:FoodOrderAppTests \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED="NO" \
+            CODE_SIGNING_ALLOWED="NO" \
             2>&1 | tee unit_test_log.txt
           exit ${PIPESTATUS[0]}
 
@@ -46,6 +44,9 @@ jobs:
             -scheme FoodOrderApp \
             -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' \
             -only-testing:FoodOrderAppUITests \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED="NO" \
+            CODE_SIGNING_ALLOWED="NO" \
             2>&1 | tee ui_test_log.txt
           exit ${PIPESTATUS[0]}
 
@@ -56,7 +57,9 @@ jobs:
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
             -destination 'generic/platform=iOS' \
-            -configuration Release
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED="NO"
 
       - name: Upload test logs
         if: always()
