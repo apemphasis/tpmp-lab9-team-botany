@@ -9,18 +9,23 @@ on:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macos-14
+    runs-on: macos-latest
     timeout-minutes: 30
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -switch /Applications/Xcode_15.0.1.app
+      - name: Prepare Signing and Testing Environment
+        run: |
+          security unlock-keychain -p "" ~/Library/Keychains/login.keychain-db || true
+          security set-keychain-settings -t 3600 -u ~/Library/Keychains/login.keychain-db || true
+          xattr -cr .
 
-      - name: Show Xcode version
-        run: xcodebuild -version
+      - name: Boot Simulator
+        run: |
+          xcrun simctl boot "iPhone 16" || true
+          xcrun simctl bootstatus "iPhone 16" -boot || true
 
       - name: Run Unit Tests
         run: |
@@ -28,12 +33,13 @@ jobs:
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0' \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
             -only-testing:FoodOrderAppTests \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED="NO" \
-            ONLY_ACTIVE_ARCH="NO" \
-            2>&1 | tee unit_test_log.txt
+            -enableCodeCoverage YES \
+            -parallel-testing-enabled NO \
+            -disable-concurrent-testing \
+            -resultBundlePath TestResults.xcresult \
+            clean test
           exit ${PIPESTATUS[0]}
 
       - name: Run UI Tests
@@ -42,12 +48,13 @@ jobs:
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
-            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.0' \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
             -only-testing:FoodOrderAppUITests \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED="NO" \
-            ONLY_ACTIVE_ARCH="NO" \
-            2>&1 | tee ui_test_log.txt
+            -enableCodeCoverage YES \
+            -parallel-testing-enabled NO \
+            -disable-concurrent-testing \
+            -resultBundlePath TestResultsUI.xcresult \
+            clean test
           exit ${PIPESTATUS[0]}
 
       - name: Build for production
@@ -60,12 +67,3 @@ jobs:
             -configuration Release \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED="NO"
-
-      - name: Upload test logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-logs
-          path: |
-            unit_test_log.txt
-            ui_test_log.txt
