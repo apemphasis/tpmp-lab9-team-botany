@@ -31,7 +31,7 @@ jobs:
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2' \
+            -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16' \
             -only-testing:FoodOrderAppTests \
             2>&1 | tee unit_test_log.txt
           exit ${PIPESTATUS[0]}
@@ -42,7 +42,7 @@ jobs:
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
-            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2' \
+            -destination 'platform=iOS Simulator,OS=18.5,name=iPhone 16' \
             -only-testing:FoodOrderAppUITests \
             2>&1 | tee ui_test_log.txt
           exit ${PIPESTATUS[0]}
