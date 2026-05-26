@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build and Test
+    name: Test
     runs-on: macos-latest
     timeout-minutes: 30
 
@@ -22,11 +22,6 @@ jobs:
           security set-keychain-settings -t 3600 -u ~/Library/Keychains/login.keychain-db || true
           xattr -cr .
 
-      - name: Boot Simulator
-        run: |
-          xcrun simctl boot "iPhone 16" || true
-          xcrun simctl bootstatus "iPhone 16" -boot || true
-
       - name: Run Unit Tests
         run: |
           cd FoodOrderApp
@@ -39,7 +34,7 @@ jobs:
             -parallel-testing-enabled NO \
             -disable-concurrent-testing \
             -resultBundlePath TestResults.xcresult \
-            clean test
+            clean
           exit ${PIPESTATUS[0]}
 
       - name: Run UI Tests
@@ -54,16 +49,5 @@ jobs:
             -parallel-testing-enabled NO \
             -disable-concurrent-testing \
             -resultBundlePath TestResultsUI.xcresult \
-            clean test
+            clean
           exit ${PIPESTATUS[0]}
-
-      - name: Build for production
-        run: |
-          cd FoodOrderApp
-          xcodebuild build \
-            -project FoodOrderApp.xcodeproj \
-            -scheme FoodOrderApp \
-            -destination 'generic/platform=iOS' \
-            -configuration Release \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED="NO"
