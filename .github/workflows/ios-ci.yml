@@ -9,15 +9,17 @@ on:
 jobs:
   build-and-test:
     name: Build and Test
-    runs-on: macos-15
+    runs-on: macos-13
     timeout-minutes: 30
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode 15
-        run: sudo xcode-select -switch /Applications/Xcode_15.4.app
+      - name: Select Xcode 14
+        run: |
+          ls /Applications | grep Xcode
+          sudo xcode-select -switch /Applications/Xcode_14.3.1.app
 
       - name: Show Xcode version
         run: xcodebuild -version
