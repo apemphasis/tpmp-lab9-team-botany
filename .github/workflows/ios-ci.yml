@@ -32,7 +32,7 @@ jobs:
             -only-testing:FoodOrderAppTests \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED="NO" \
-            CODE_SIGNING_ALLOWED="NO" \
+            ONLY_ACTIVE_ARCH="NO" \
             2>&1 | tee unit_test_log.txt
           exit ${PIPESTATUS[0]}
 
@@ -46,7 +46,7 @@ jobs:
             -only-testing:FoodOrderAppUITests \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED="NO" \
-            CODE_SIGNING_ALLOWED="NO" \
+            ONLY_ACTIVE_ARCH="NO" \
             2>&1 | tee ui_test_log.txt
           exit ${PIPESTATUS[0]}
 
