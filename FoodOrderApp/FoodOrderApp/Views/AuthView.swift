@@ -94,6 +94,7 @@ struct AuthView: View {
                             .padding(.vertical, 8)
                             .background(Color.red.opacity(0.08))
                             .cornerRadius(8)
+                            .accessibilityIdentifier("errorMessage")
                             .transition(.scale.combined(with: .opacity))
                         }
 
