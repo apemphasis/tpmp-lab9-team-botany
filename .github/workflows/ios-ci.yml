@@ -1,0 +1,63 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode_16.2.app
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: List available simulators
+        run: xcrun simctl list devices
+
+      - name: Run Unit Tests
+        run: |
+          xcodebuild test \
+            -project FoodOrderApp.xcodeproj \
+            -scheme FoodOrderApp \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2' \
+            -only-testing:FoodOrderAppTests \
+            2>&1 | tee unit_test_log.txt
+          exit ${PIPESTATUS[0]}
+
+      - name: Run UI Tests
+        run: |
+          xcodebuild test \
+            -project FoodOrderApp.xcodeproj \
+            -scheme FoodOrderApp \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.2' \
+            -only-testing:FoodOrderAppUITests \
+            2>&1 | tee ui_test_log.txt
+          exit ${PIPESTATUS[0]}
+
+      - name: Build for production
+        run: |
+          xcodebuild build \
+            -project FoodOrderApp.xcodeproj \
+            -scheme FoodOrderApp \
+            -destination 'generic/platform=iOS' \
+            -configuration Release
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: |
+            unit_test_log.txt
+            ui_test_log.txt
