@@ -1,194 +1,71 @@
-name: iOS Test Coverage CI
+name: iOS CI
 
 on:
   push:
-    branches:
-      - main
-      - dev
+    branches: [ main, dev ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  run-tests-and-coverage:
+  build-and-test:
+    name: Build and Test
     runs-on: macos-14
     timeout-minutes: 30
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Select Xcode Version
-        run: |
-          sudo xcode-select -switch /Applications/Xcode_15.0.1.app
-          xcodebuild -version
+      - name: Select Xcode
+        run: sudo xcode-select -switch /Applications/Xcode_15.0.1.app
 
-      - name: Prepare Signing and Testing Environment
-        run: |
-          # Разблокировка связки ключей macOS для беспрепятственного codesign
-          security unlock-keychain -p "" ~/Library/Keychains/login.keychain-db || true
-          security set-keychain-settings -t 3600 -u ~/Library/Keychains/login.keychain-db || true
-          # Удаление расширенных файловых атрибутов для избежания ошибок ресурсов
-          xattr -cr .
+      - name: Show Xcode version
+        run: xcodebuild -version
 
-      - name: List Available Simulators
-        run: |
-          echo "=== Available iOS Simulators ==="
-          xcrun simctl list devices available | grep -E "iPhone" | head -10
-
-      - name: Boot Simulator
-        run: |
-          # Boot iPhone 15 with iOS 17.0
-          xcrun simctl boot "iPhone 14" || true
-          xcrun simctl bootstatus "iPhone 14" -b || true
-          sleep 5
-
-      - name: Run Unit Tests with Coverage
+      - name: Run Unit Tests
         run: |
           cd FoodOrderApp
-          
-          # Run Unit Tests with code coverage
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
             -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' \
             -only-testing:FoodOrderAppTests \
-            -enableCodeCoverage YES \
-            -parallel-testing-enabled NO \
-            -disable-concurrent-testing \
-            -resultBundlePath TestResults.xcresult \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            clean test
+            CODE_SIGNING_REQUIRED="NO" \
+            ONLY_ACTIVE_ARCH="NO" \
+            2>&1 | tee unit_test_log.txt
+          exit ${PIPESTATUS[0]}
 
-      - name: Run UI Tests with Coverage (Optional)
+      - name: Run UI Tests
         run: |
           cd FoodOrderApp
-          
-          # Run UI Tests with code coverage
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
             -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.2' \
             -only-testing:FoodOrderAppUITests \
-            -enableCodeCoverage YES \
-            -parallel-testing-enabled NO \
-            -disable-concurrent-testing \
-            -resultBundlePath TestResultsUI.xcresult \
             CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO \
-            test || echo "UI Tests failed or not configured"
+            CODE_SIGNING_REQUIRED="NO" \
+            ONLY_ACTIVE_ARCH="NO" \
+            2>&1 | tee ui_test_log.txt
+          exit ${PIPESTATUS[0]}
 
-      - name: Merge Test Results (if UI tests exist)
+      - name: Build for production
         run: |
           cd FoodOrderApp
-          # If UI tests produced results, merge them
-          if [ -d "TestResultsUI.xcresult" ]; then
-            xcrun xcresulttool merge TestResults.xcresult TestResultsUI.xcresult --output-path MergedResults.xcresult
-            mv MergedResults.xcresult TestResults.xcresult
-          fi
+          xcodebuild build \
+            -project FoodOrderApp.xcodeproj \
+            -scheme FoodOrderApp \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED="NO"
 
-      - name: Extract Dynamic Coverage Report
-        id: parse_coverage
-        run: |
-          cd FoodOrderApp
-          
-          # Generate JSON report from .xcresult using xccov
-          xcrun xccov view --report --json TestResults.xcresult > coverage_report.json
-          
-          # Extract top-level line coverage float (e.g. 0.9412)
-          COVERAGE_FLOAT=$(jq -r '.lineCoverage' coverage_report.json)
-          
-          # Convert to percentage
-          COVERAGE_PERCENT=$(awk -v cov="$COVERAGE_FLOAT" 'BEGIN {print cov * 100}')
-          COVERAGE_ROUNDED=$(awk -v cov="$COVERAGE_PERCENT" 'BEGIN {printf "%.1f", cov}')
-          
-          # Print dynamic percentage to console
-          echo "==========================================="
-          echo "DYNAMIC TOTAL CODE COVERAGE: $COVERAGE_ROUNDED%"
-          echo "==========================================="
-          
-          # Set variables for GitHub Actions environment
-          echo "COVERAGE_VAL=$COVERAGE_ROUNDED" >> $GITHUB_ENV
-          
-          # Dynamically determine shields.io badge color
-          COVERAGE_COLOR=$(awk -v cov="$COVERAGE_PERCENT" 'BEGIN {
-            if (cov >= 90.0) print "brightgreen";
-            else if (cov >= 80.0) print "green";
-            else if (cov >= 70.0) print "yellowgreen";
-            else if (cov >= 60.0) print "yellow";
-            else if (cov >= 50.0) print "orange";
-            else print "red";
-          }')
-          echo "COVERAGE_COLOR=$COVERAGE_COLOR" >> $GITHUB_ENV
-
-      - name: Generate Coverage Badge
-        run: |
-          # Create coverage badge using shields.io
-          curl -s "https://img.shields.io/badge/Coverage-${{ env.COVERAGE_VAL }}%25-${{ env.COVERAGE_COLOR }}" > coverage_badge.svg
-          
-          # Also generate markdown version
-          echo "![Coverage](https://img.shields.io/badge/Coverage-${{ env.COVERAGE_VAL }}%25-${{ env.COVERAGE_COLOR }})" > coverage.md
-
-      - name: Upload Coverage Badge
+      - name: Upload test logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-badge
+          name: test-logs
           path: |
-            coverage_badge.svg
-            coverage.md
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: FoodOrderApp/TestResults.xcresult
-
-      - name: Upload Coverage Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: FoodOrderApp/coverage_report.json
-
-      - name: Generate Detailed Coverage Report
-        run: |
-          cd FoodOrderApp
-          # Generate human-readable coverage report
-          xcrun xccov view --report TestResults.xcresult > coverage_report.txt
-          
-          echo "==========================================="
-          echo "DETAILED COVERAGE REPORT:"
-          echo "==========================================="
-          cat coverage_report.txt | head -50
-
-      - name: Upload Detailed Coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: detailed-coverage
-          path: FoodOrderApp/coverage_report.txt
-
-      - name: Comment PR with Coverage
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const coverage = process.env.COVERAGE_VAL;
-            const color = process.env.COVERAGE_COLOR;
-            const body = `## 📊 Test Coverage Report
-            \n**Code Coverage:** ${coverage}%
-            \n![Coverage](https://img.shields.io/badge/Coverage-${coverage}%25-${color})
-            \n*Generated by CI pipeline*`;
-            
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
+            unit_test_log.txt
+            ui_test_log.txt
