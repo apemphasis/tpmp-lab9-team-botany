@@ -365,9 +365,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "";
-                CODE_SIGNING_REQUIRED = NO;
-                CODE_SIGNING_ALLOWED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -590,9 +587,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "";
-                CODE_SIGNING_REQUIRED = NO;
-                CODE_SIGNING_ALLOWED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Для определения ближайшего ресторана";
@@ -619,9 +613,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "";
-                CODE_SIGNING_REQUIRED = NO;
-                CODE_SIGNING_ALLOWED = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Для определения ближайшего ресторана";
