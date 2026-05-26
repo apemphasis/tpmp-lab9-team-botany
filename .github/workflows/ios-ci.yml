@@ -16,10 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Select Xcode 14
+      - name: Select Xcode 15
         run: |
           ls /Applications | grep Xcode
-          sudo xcode-select -switch /Applications/Xcode_14.3.1.app
+          sudo xcode-select -switch /Applications/Xcode_15.0.1.app
 
       - name: Show Xcode version
         run: xcodebuild -version
