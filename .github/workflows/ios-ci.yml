@@ -27,6 +27,7 @@ jobs:
 
       - name: Run Unit Tests
         run: |
+          cd FoodOrderApp
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
@@ -37,6 +38,7 @@ jobs:
 
       - name: Run UI Tests
         run: |
+          cd FoodOrderApp
           xcodebuild test \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
@@ -47,6 +49,7 @@ jobs:
 
       - name: Build for production
         run: |
+          cd FoodOrderApp
           xcodebuild build \
             -project FoodOrderApp.xcodeproj \
             -scheme FoodOrderApp \
