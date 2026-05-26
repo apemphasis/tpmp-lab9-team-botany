@@ -1,0 +1,53 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Test
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare Signing and Testing Environment
+        run: |
+          security unlock-keychain -p "" ~/Library/Keychains/login.keychain-db || true
+          security set-keychain-settings -t 3600 -u ~/Library/Keychains/login.keychain-db || true
+          xattr -cr .
+
+      - name: Run Unit Tests
+        run: |
+          cd FoodOrderApp
+          xcodebuild test \
+            -project FoodOrderApp.xcodeproj \
+            -scheme FoodOrderApp \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -only-testing:FoodOrderAppTests \
+            -enableCodeCoverage YES \
+            -parallel-testing-enabled NO \
+            -disable-concurrent-testing \
+            -resultBundlePath TestResults.xcresult \
+            clean
+          exit ${PIPESTATUS[0]}
+
+      - name: Run UI Tests
+        run: |
+          cd FoodOrderApp
+          xcodebuild test \
+            -project FoodOrderApp.xcodeproj \
+            -scheme FoodOrderApp \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -only-testing:FoodOrderAppUITests \
+            -enableCodeCoverage YES \
+            -parallel-testing-enabled NO \
+            -disable-concurrent-testing \
+            -resultBundlePath TestResultsUI.xcresult \
+            clean
+          exit ${PIPESTATUS[0]}
