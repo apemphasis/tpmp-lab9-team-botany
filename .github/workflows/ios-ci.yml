@@ -48,6 +48,5 @@ jobs:
             -enableCodeCoverage YES \
             -parallel-testing-enabled NO \
             -disable-concurrent-testing \
-            -resultBundlePath TestResultsUI.xcresult \
-            clean
+            -resultBundlePath TestResultsUI.xcresult
           exit ${PIPESTATUS[0]}
